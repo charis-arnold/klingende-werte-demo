@@ -323,11 +323,14 @@ function beschreibung() {
   for (const s of symptome) {
     beispielwoche.forEach(t => {
       if (t.symptome[s.id] === null || t.symptome[s.id] === undefined) {
-        luecken.push(`${s.name} am ${tagName[t.tag] || t.tag}`);
+        const woche = Math.floor(beispielwoche.indexOf(t) / 7) + 1;
+        luecken.push(`${s.name} am ${tagName[t.tag] || t.tag} in Woche ${woche}`);
       }
     });
   }
-  let text = `Bild einer Woche von Montag bis Sonntag. Breite farbige Bänder zeigen ${namen} im Verlauf der Woche. ` +
+  const wochen = Math.ceil(beispielwoche.length / 7);
+  const zeitraum = wochen === 1 ? "einer Woche" : `von ${["", "einer", "zwei", "drei", "vier", "fünf"][wochen] || wochen} Wochen`;
+  let text = `Bild ${zeitraum}, jeweils von Montag bis Sonntag. Breite farbige Bänder zeigen ${namen} im Verlauf. ` +
              `Gelbe Säulen zeigen die Ruhezeiten; die Nacht liegt in der Mitte des Bildes.`;
   if (luecken.length) {
     text += ` Nicht eingetragen: ${luecken.join(", ")}.`;
@@ -336,12 +339,18 @@ function beschreibung() {
 }
 
 // Wochentage als HTML unter dem Bild – dieselbe Schrift wie die Seite
+// Bis 7 Tage: ein Kürzel pro Tag. Länger: eine Beschriftung pro Woche («Woche 1» …),
+// sonst passen die Kürzel auf dem Handy nicht nebeneinander.
 function tageAufbauen() {
   const liste = document.getElementById("tage");
   liste.innerHTML = "";
-  for (const t of beispielwoche) {
+  const eintraege = beispielwoche.length <= 7
+    ? beispielwoche.map(t => t.tag)
+    : Array.from({ length: Math.ceil(beispielwoche.length / 7) }, (_, w) => `Woche ${w + 1}`);
+  liste.style.gridTemplateColumns = `repeat(${eintraege.length}, 1fr)`;
+  for (const text of eintraege) {
     const li = document.createElement("li");
-    li.textContent = t.tag;
+    li.textContent = text;
     liste.append(li);
   }
   tageAusrichten();

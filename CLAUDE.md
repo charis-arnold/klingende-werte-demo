@@ -34,10 +34,19 @@ klingende-werte-demo/
 ├── CLAUDE.md        ← dieses Dokument
 ├── index.html       ← Struktur, Bedienelemente, Bibliotheken per CDN
 ├── style.css        ← Gestaltung, grosse Bedienelemente, Fokus-Zustände
-├── data.js          ← Vorschlagslisten, Symptom-Einstellungen, fiktive Beispielwoche
-├── sound.js         ← Tone.js: Instrumente, Tonleitern, Abspielen (nur Symptome)
-└── sketch.js        ← p5.js: Bild, Abspielkopf, Synchronisation mit sound.js
+├── data.js          ← Vorschlagslisten, Symptom-Einstellungen, fiktive Beispieldaten (4 Wochen)
+├── sound.js         ← Tone.js: Instrumente, Tonleitern, Abspielen (nur Symptome); ES-Modul
+├── sketch.js        ← p5.js: Bild, Abspielkopf, Synchronisation mit sound.js
+├── SAMPLES.md       ← Herkunft, Lizenz und Bearbeitung jeder Sample-Quelle
+├── samples/         ← nur die Töne, die gebraucht werden; Dateiname = klingende Tonhöhe
+│   ├── klavier/     ← Salamander Grand Piano (CC BY 3.0)
+│   ├── trompete/    ← VSCO 2 CE (CC0)
+│   └── kontrabass/  ← VSCO 2 CE, pizzicato (CC0)
+└── vendor/twotone/  ← scales.js, applyEnvelope.js, num.js aus TwoTone (MIT, mit LICENSE)
 ```
+
+`klanglabor/` (Strudel, nur lokal) steht in `.gitignore` und gehört nicht zur Demo.
+`vergleich/` enthält Charis' private TwoTone-Spuren aus dem Selbstexperiment – steht in `.gitignore`, **nie committen**.
 
 Bibliotheken: p5.js (1.x) und Tone.js (aktuelle Version), beide per CDN. Keine weiteren Abhängigkeiten ohne Rückfrage.
 
@@ -74,7 +83,7 @@ const ruheFarbe = { cmyk: "0/29/85/0", farbe: "#FFBE2E" };
 // Tonhöhe: Stufe 1–6 wird gleichmässig auf den Umfang der Tonleiter verteilt
 // (wie in TwoTone): Stufe 1 = Startton, Stufe 6 = höchster Ton des Umfangs.
 
-// Fiktive Beispielwoche
+// Fiktive Beispieldaten: 4 Wochen = 28 Tage (Name «beispielwoche» geblieben)
 const beispielwoche = [
   {
     tag: "Mo",
@@ -88,7 +97,7 @@ const beispielwoche = [
 ];
 ```
 
-Die Werte sind **fiktiv** und zeigen eine glaubwürdige, nicht dramatische Woche: Auf und Ab, ein ruhiger Tag, eine Lücke.
+Die Werte sind **fiktiv** und zeigen glaubwürdige, nicht dramatische **4 Wochen (28 Tage)**: Woche 1 Auf und Ab mit ruhigem Sonntag, Woche 2 ruhig, Woche 3 ein mildes Tief um die Wochenmitte, Woche 4 Erholung. Ein paar Lücken: einzelne fehlende Werte und ein ganzer Tag ohne Eintrag (Woche 2, Samstag). Unter dem Bild steht «Woche 1» … «Woche 4» statt einzelner Tageskürzel.
 
 ## Raster (aus dem Selbstexperiment)
 
@@ -119,7 +128,7 @@ Eine feine gelbe Mittellinie markiert Mitternacht.
 
 ## Zuordnung Bild und Klang
 
-Zeitachse: **1 Tag = 1 Takt** (Startwert ca. 2 Sekunden), Woche ≈ 15 Sekunden.
+Zeitachse: **1 Tag = 1 Sekunde, fest** (Entscheidung 23.11.2026, wie TwoTone im Selbstexperiment; kein Umschalter). 4 Wochen = 28 Sekunden.
 
 **Grundregel: Nur Symptome klingen. Alles andere erscheint nur im Bild.**
 
@@ -137,17 +146,27 @@ Gestaltung: Bildsprache des Figma-Prototyps und des Films aus dem Selbstexperime
 
 **Musik-Einstellungen für Testpersonen:** In Phase 1 wählt die Person pro Symptom nur **Farbe und Instrument**. Tonart, Tonleiter, Umfang und Startoktave sind sinnvoll vorgegeben und nur in einem eingeklappten Bereich «Mehr Klang-Einstellungen» erreichbar. Begriffe auf Deutsch wie im Figma: Tonleiter (Dur, Moll, Melodisch Moll, Harmonisch Moll, Dorisch, Phrygisch, Lydisch, Mixolydisch, Lokrisch), Umfang («2 Oktaven»), Startoktave.
 
-Instrumente: Klavier, Violine, Trompete, Kontrabass. Die Beispielwoche zeigt alle fünf Symptome mit den Vorgaben oben (wie im Selbstexperiment).
+Instrumente: Klavier, Violine, Trompete, Kontrabass. Die Beispieldaten zeigen alle fünf Symptome mit den Vorgaben oben (wie im Selbstexperiment).
 
 **Klangwelt (Entscheidung 23.11.2026, «Weg 2»):** Charis entwickelt die Klangwelt im Strudel-Editor (strudel.cc) und hält fest, was ihr gefällt (Instrumente, Hall, Filter, Ein- und Ausklingen). Umgesetzt wird sie in **Tone.js**, nicht mit Strudel – Strudel steht unter AGPL-3.0, und die Lizenz der Demo und der späteren App soll offen bleiben. Kein Strudel-Code und keine Strudel-Pakete in diesem Repository.
 
-Samples: `Tone.Sampler` mit frei lizenzierten Samples, z. B. Salamander Grand Piano (gemeinfrei) und FluidR3_GM-Klänge (MIT). Herkunft und Lizenz jeder Sample-Quelle in einer Datei `SAMPLES.md` notieren. Falls das nicht klappt, gut klingende Synth-Annäherungen.
+**Klang wie TwoTone (umgesetzt in Schritt 2, `sound.js`):** So nah wie möglich an TwoTone (https://github.com/sonifydata/twotone), mit einer bewussten Abweichung:
+
+- **Tonhöhe:** Wert 0–1 → eine der **6 festen Stufen** (wie im Bild) → Stufe in der Tonleiter wie TwoTone: `round(stufe/5 × Oktaven × 7)`, dann `getKeyNoteFrequency` aus TwoTones `scales.js`. *Abweichung:* TwoTone normalisiert jede Datenspalte auf ihr eigenes Min–Max; wir nicht.
+- **Hüllkurve:** `applyEnvelope.js` aus TwoTone. Kein Einschwingen, Ton hält den ganzen Tag, kurzes Ausklingen (Klavier/Trompete 0,1 s, Bass 0,2 s), endet 0,01 s nach dem nächsten Anschlag. Jeder Tag wird neu angeschlagen, auch bei gleicher Tonhöhe. Lautstärke pro Instrument angeglichen (`0.7 / maxAmplitude × gain`, Werte aus TwoTone).
+- **Angeglichen an die TwoTone-Aufnahmen** (Vergleich 23.11.2026 mit Charis' Spuren aus dem Selbstexperiment): **Klavier mono** aus dem rechten Kanal (die Summe beider Salamander-Kanäle löscht sich teils aus, C5 −8 dB). **Kontrabass mono** (Summe), **Tiefpass 500 Hz**, zusätzliches Abklingen −11 dB über 1 s → gesamt etwa −35 dB nach 1 s, dunkler und kürzer wie der TwoTone-Bass. **Trompete unverändert** (klang bei gleicher Tonhöhe schon gleich). **Kein Hall** – auch TwoTone hat keinen.
+- **Samples:** nächstgelegenes Sample, per Abspielgeschwindigkeit auf die Tonhöhe gebracht (wie TwoTone). Keine `Tone.Sampler`, sondern pro Ton ein Web-Audio-Puffer mit eigener Hüllkurve – sonst passt `applyEnvelope` nicht. Tone.js lädt, plant (Transport) und gibt aus; am Ausgang ein Limiter nur als Schutz gegen Übersteuern (TwoTone hat keinen).
+- **Fehlender Wert:** Pause.
+- **Instrumente:** Klavier = Salamander (CC BY 3.0, Urheber in `SAMPLES.md` und auf der Seite), Trompete und Kontrabass (gezupft) = VSCO 2 CE (CC0). Violine ist noch nicht eingebunden. Herkunft und Bearbeitung in `SAMPLES.md`.
+- **Achtung Benennung:** VSCO zählt Oktaven eine tiefer als üblich (VSCO «C3» klingt C4). Unsere Dateinamen sind die klingende Tonhöhe (C4 = mittleres C). TwoTone liest die VSCO-Namen wörtlich – dort klingt die Trompete eine Oktave höher als berechnet.
+- **Vergleichsschalter «Oktaven wie TwoTone»** (nur für die Entwicklung, vor den Tests entfernen): aus = wie in den Einstellungen; an = so, wie TwoTone tatsächlich klingt. TwoTone schiebt die Startoktave nach unten, wenn Startoktave + Umfang über das Instrument hinausreicht, und bei der Trompete kommt der Benennungsversatz dazu. Ergebnis für die Beispieldaten: Schwindel unverändert, Muskeltonus eine Oktave tiefer, Gefühlsstörung eine Oktave höher, Klavier unverändert. Den TwoTone-Bass (patcharena, uneinheitlich benannt) bildet der Schalter nicht nach.
+- **Code aus TwoTone:** nur `scales.js`, `applyEnvelope.js` und `num.js` aus `src/soundq` (MIT, © 2019 Datavized) – in `vendor/twotone/` mit Hinweis und LICENSE. Der übrige TwoTone-Code steht unter MPL 2.0 und wird nicht kopiert; Rechenwege sind in eigenen Worten nachgebaut.
 
 ## Bedienung
 
 Zwei Modi, oben umschaltbar:
 
-1. **Beispielwoche:** zeigt und spielt die fiktive Woche.
+1. **Beispielwoche:** zeigt und spielt die fiktiven Beispieldaten (4 Wochen).
 2. **Selbst setzen:**
    - Symptome aus den Vorschlägen wählen oder eigenes hinzufügen (max. 5), wieder entfernen.
    - Für jeden der 7 Tage pro Symptom ein vertikaler Regler ohne Zahlen (wie die Figma-Säule). Ein Tag kann leer bleiben.
@@ -172,7 +191,7 @@ Bedienelemente (immer sichtbar, gross):
 ## Schritte
 
 1. **Gerüst:** Ordner, `index.html`, Bibliotheken laden, Beispielwoche, ruhendes Bild der Symptome zeichnen.
-2. **Klang:** ein Instrument pro Symptom, Tonleiter-Quantisierung (Tonleitern selbst als Halbtonschritte hinterlegen, keine Zusatzbibliothek), eine Woche abspielen.
+2. **Klang:** ein Instrument pro Symptom, Tonleiter-Quantisierung (Tonleitern als Halbtonschritte aus TwoTones `scales.js`, keine Zusatzbibliothek), eine Woche abspielen. *Umgesetzt:* `sound.js`, Abspielen/Pause (auch Leertaste), 1 Tag = 1 s, nach dem letzten Tag zurück an den Anfang. Klang an TwoTone angeglichen (siehe «Klang wie TwoTone»). Vorübergehend: Knopf «Als WAV speichern» (`wav-export.js`) zum Vergleich – vor den Tests entfernen. Offen: Violine, «Klang an/aus», «Von vorne», Abspielkopf (Schritt 3).
 3. **Synchron:** `Tone.Transport` steuert, p5 zeichnet den Abspielkopf nach der Transport-Zeit. Play/Pause/Von vorne.
 4. **Zeichen-Ebene (nur Bild):** Beschwerden, Ereignisse, Medikamente, Ruhezeiten.
 5. **Selbst setzen:** Symptome wählen, Regler, Tages-Auswahl, Farb- und Instrumentwahl, «Mehr Klang-Einstellungen».
@@ -183,5 +202,4 @@ Nach jedem Schritt: im Browser prüfen, kurz festhalten, was offen ist.
 
 ## Offene Entscheidungen
 
-- Tempo: 2 Sekunden pro Tag als Startwert. Testen, ob Testpersonen langsamer wollen.
 - Hochformat (Handy) oder Querformat zuerst? Vorschlag: Handy-Hochformat, weil der Figma-Prototyp darauf ausgelegt ist. Der Film aus dem Selbstexperiment ist Querformat – prüfen, was besser passt.

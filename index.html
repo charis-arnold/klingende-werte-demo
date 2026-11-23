@@ -4,6 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Klingende Werte – Demo</title>
+  <link rel="icon" href="data:,">
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -13,12 +14,34 @@
   </header>
 
   <main>
+    <div class="bedienung">
+      <button id="abspielen" class="knopf-haupt" type="button" aria-pressed="false">
+        <span class="knopf-symbol" aria-hidden="true"></span>
+        <span id="abspielen-text">Abspielen</span>
+      </button>
+      <p id="klang-status" class="klang-status" role="status" aria-live="polite"></p>
+    </div>
+
     <figure class="bild">
       <div id="leinwand"></div>
       <ol id="tage" class="tage" aria-hidden="true"></ol>
       <figcaption id="legende" class="legende"></figcaption>
     </figure>
+
+    <!-- Nur zum Vergleichen mit TwoTone während der Entwicklung, vor den Tests entfernen -->
+    <label class="schalter">
+      <input type="checkbox" id="wie-twotone">
+      Vergleich: Oktaven wie TwoTone
+    </label>
+    <!-- Vorübergehend: Spuren zum Vergleich mit TwoTone speichern, vor den Tests entfernen -->
+    <button id="wav-speichern" class="knopf-neben" type="button">Als WAV speichern</button>
   </main>
+
+  <footer class="fuss">
+    <p>Klänge: Klavier – Salamander Grand Piano von Alexander Holm (CC BY 3.0).
+       Trompete und Kontrabass – VS Chamber Orchestra Community Edition (CC0).
+       Klang-Logik nach TwoTone von Datavized/Sonify.</p>
+  </footer>
 
   <!-- Bibliotheken per CDN -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/p5.min.js"></script>
@@ -27,5 +50,7 @@
   <!-- Eigene Dateien -->
   <script src="data.js"></script>
   <script src="sketch.js"></script>
+  <script type="module" src="sound.js"></script>
+  <script type="module" src="wav-export.js"></script>
 </body>
 </html>

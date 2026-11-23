@@ -108,6 +108,106 @@ h1 {
   }
 }
 
+/* ---------- Bedienung ---------- */
+
+.bedienung {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 16px;
+  margin-top: 16px;
+}
+
+.knopf-haupt {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 44px;
+  min-height: 48px;
+  padding: 8px 24px 8px 18px;
+  border: 2px solid var(--text);
+  border-radius: 24px;
+  background: var(--text);
+  color: var(--hintergrund);
+  font: inherit;
+  font-size: 1.125rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* Symbol: Dreieck (Abspielen) bzw. zwei Balken (Pause) */
+.knopf-symbol {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-width: 9px 0 9px 15px;
+  border-color: transparent transparent transparent currentColor;
+}
+
+.knopf-haupt.laeuft .knopf-symbol {
+  width: 14px;
+  height: 18px;
+  border-width: 0 5px;
+  border-color: currentColor;
+  background: transparent;
+}
+
+.klang-status {
+  margin: 0;
+  color: var(--text-leise);
+}
+
+.klang-status:empty {
+  display: none;
+}
+
+.schalter {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 44px;
+  margin-bottom: 24px;
+  color: var(--text-leise);
+  cursor: pointer;
+}
+
+.schalter input {
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--text);
+}
+
+.knopf-neben {
+  min-width: 44px;
+  min-height: 44px;
+  margin: 0 0 24px 16px;
+  padding: 8px 16px;
+  border: 2px solid var(--text);
+  border-radius: 22px;
+  background: var(--hintergrund);
+  color: var(--text);
+  font: inherit;
+  cursor: pointer;
+}
+
+.knopf-neben:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+.fuss {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px 24px;
+  color: var(--text-leise);
+  font-size: 1rem;
+}
+
+.fuss p {
+  margin: 0;
+}
+
 :focus-visible {
   outline: 3px solid var(--fokus);
   outline-offset: 3px;
