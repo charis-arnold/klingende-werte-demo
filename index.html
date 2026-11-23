@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Klingende Werte – Demo</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="kopf">
+    <h1>Dein Verlauf</h1>
+    <p class="untertitel">Beispielwoche</p>
+  </header>
+
+  <main>
+    <figure class="bild">
+      <div id="leinwand"></div>
+      <figcaption id="legende" class="legende"></figcaption>
+    </figure>
+  </main>
+
+  <!-- Bibliotheken per CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.11.1/p5.min.js"></script>
+  <script src="https://unpkg.com/tone@15.1.22/build/Tone.js"></script>
+
+  <!-- Eigene Dateien -->
+  <script src="data.js"></script>
+  <script src="sketch.js"></script>
+</body>
+</html>

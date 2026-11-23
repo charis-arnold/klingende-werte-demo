@@ -1,0 +1,83 @@
+:root {
+  --hintergrund: #FFFFFF;
+  --text: #1F1F1F;
+  --text-leise: #555555;   /* 7.5 : 1 auf Weiss */
+  --fokus: #1F1F1F;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: 100%;   /* 16 px */
+}
+
+body {
+  margin: 0;
+  background: var(--hintergrund);
+  color: var(--text);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.kopf,
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.kopf {
+  padding-top: 24px;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+
+.untertitel {
+  margin: 0;
+  color: var(--text-leise);
+}
+
+.bild {
+  margin: 16px 0 32px;
+}
+
+#leinwand canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.legende {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.legende-eintrag {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.legende-farbe {
+  width: 24px;
+  height: 8px;
+  border-radius: 4px;
+}
+
+:focus-visible {
+  outline: 3px solid var(--fokus);
+  outline-offset: 3px;
+}
