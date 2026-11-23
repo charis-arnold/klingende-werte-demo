@@ -126,7 +126,11 @@ Gestaltung: Bildsprache des Figma-Prototyps und des Films aus dem Selbstexperime
 
 **Musik-Einstellungen für Testpersonen:** In Phase 1 wählt die Person pro Symptom nur **Farbe und Instrument**. Tonart, Tonleiter, Umfang und Startoktave sind sinnvoll vorgegeben und nur in einem eingeklappten Bereich «Mehr Klang-Einstellungen» erreichbar. Begriffe auf Deutsch wie im Figma: Tonleiter (Dur, Moll, Melodisch Moll, Harmonisch Moll, Dorisch, Phrygisch, Lydisch, Mixolydisch, Lokrisch), Umfang («2 Oktaven»), Startoktave.
 
-Instrumente: Klavier, Violine, Trompete, Bass. Zuerst mit `Tone.Sampler` und frei lizenzierten Samples (z. B. das Projekt «tonejs-instruments»). Lizenz prüfen und notieren. Falls das nicht klappt, gut klingende Synth-Annäherungen.
+Instrumente: Klavier, Violine, Trompete, Bass.
+
+**Klangwelt (Entscheidung 23.11.2026, «Weg 2»):** Charis entwickelt die Klangwelt im Strudel-Editor (strudel.cc) und hält fest, was ihr gefällt (Instrumente, Hall, Filter, Ein- und Ausklingen). Umgesetzt wird sie in **Tone.js**, nicht mit Strudel – Strudel steht unter AGPL-3.0, und die Lizenz der Demo und der späteren App soll offen bleiben. Kein Strudel-Code und keine Strudel-Pakete in diesem Repository.
+
+Samples: `Tone.Sampler` mit frei lizenzierten Samples, z. B. Salamander Grand Piano (gemeinfrei) und FluidR3_GM-Klänge (MIT). Herkunft und Lizenz jeder Sample-Quelle in einer Datei `SAMPLES.md` notieren. Falls das nicht klappt, gut klingende Synth-Annäherungen.
 
 ## Bedienung
 
