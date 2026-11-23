@@ -58,16 +58,27 @@ const vorschlaege = {
 };
 
 // Gewählte Symptome (max. 5) – nur diese klingen
+// Vorgaben von Charis (aus dem Selbstexperiment). Farben im Original als CMYK;
+// "farbe" ist der Bildschirmwert (Hex) von Charis – verbindlich.
 const symptome = [
-  { id: "energie",  name: "Energie",  farbe: "#C8393B", instrument: "klavier", tonart: "C", tonleiter: "lydisch", umfang: 2, startoktave: 3 },
-  { id: "stimmung", name: "Stimmung", farbe: "#5AAFC0", instrument: "violine", tonart: "C", tonleiter: "lydisch", umfang: 2, startoktave: 4 }
+  { id: "energie",        name: "Energie",        cmyk: "7/95/85/1",    farbe: "#D8282A", instrument: "klavier",    tonart: "C", tonleiter: "lydisch", umfang: 2, startoktave: 3 },
+  { id: "schwindel",      name: "Schwindel",      cmyk: "71/2/26/0",    farbe: "#2CB5C2", instrument: "trompete",   tonart: "C", tonleiter: "lydisch", umfang: 2, startoktave: 3 },
+  { id: "muskeltonus",    name: "Muskeltonus",    cmyk: "87/38/82/35",  farbe: "#195B3B", instrument: "kontrabass", tonart: "C", tonleiter: "lydisch", umfang: 3, startoktave: 1 },
+  { id: "stimmung",       name: "Stimmung",       cmyk: "98/87/20/6",   farbe: "#2B3779", instrument: "klavier",    tonart: "C", tonleiter: "lydisch", umfang: 3, startoktave: 3 },
+  { id: "gefuehlsstoerung", name: "Gefühlsstörung", cmyk: "0/67/15/0", farbe: "#FF769A", instrument: "trompete",   tonart: "C", tonleiter: "lydisch", umfang: 1, startoktave: 3 }
 ];
+
+// Ruhephasen
+const ruheFarbe = { cmyk: "0/29/85/0", farbe: "#FFBE2E" };
+
+// Tonhöhe: Stufe 1–6 wird gleichmässig auf den Umfang der Tonleiter verteilt
+// (wie in TwoTone): Stufe 1 = Startton, Stufe 6 = höchster Ton des Umfangs.
 
 // Fiktive Beispielwoche
 const beispielwoche = [
   {
     tag: "Mo",
-    symptome:    { energie: 0.7, stimmung: 0.5 },   // 0–1, null = nicht eingetragen
+    symptome:    { energie: 0.7, schwindel: 0.3, muskeltonus: 0.5, stimmung: 0.5, gefuehlsstoerung: null },   // 0–1, null = nicht eingetragen
     beschwerden: ["Kopfschmerzen"],                 // optional
     ereignisse:  ["Bewegung"],                      // optional
     medikamente: ["Vitamine"],                      // optional
@@ -126,7 +137,7 @@ Gestaltung: Bildsprache des Figma-Prototyps und des Films aus dem Selbstexperime
 
 **Musik-Einstellungen für Testpersonen:** In Phase 1 wählt die Person pro Symptom nur **Farbe und Instrument**. Tonart, Tonleiter, Umfang und Startoktave sind sinnvoll vorgegeben und nur in einem eingeklappten Bereich «Mehr Klang-Einstellungen» erreichbar. Begriffe auf Deutsch wie im Figma: Tonleiter (Dur, Moll, Melodisch Moll, Harmonisch Moll, Dorisch, Phrygisch, Lydisch, Mixolydisch, Lokrisch), Umfang («2 Oktaven»), Startoktave.
 
-Instrumente: Klavier, Violine, Trompete, Bass.
+Instrumente: Klavier, Violine, Trompete, Kontrabass. Die Beispielwoche zeigt alle fünf Symptome mit den Vorgaben oben (wie im Selbstexperiment).
 
 **Klangwelt (Entscheidung 23.11.2026, «Weg 2»):** Charis entwickelt die Klangwelt im Strudel-Editor (strudel.cc) und hält fest, was ihr gefällt (Instrumente, Hall, Filter, Ein- und Ausklingen). Umgesetzt wird sie in **Tone.js**, nicht mit Strudel – Strudel steht unter AGPL-3.0, und die Lizenz der Demo und der späteren App soll offen bleiben. Kein Strudel-Code und keine Strudel-Pakete in diesem Repository.
 

@@ -26,7 +26,7 @@ const BILD = {
   plateauAnteil: 0.45,      // waagrechtes Stück pro Tag, relativ zur Tagesspalte
   kopfKreisAnteil: 1.0,     // Kreis am Abspielkopf (Schritt 3), relativ zur Stufenhöhe
 
-  ruheFarbe: "#F4C542",
+  ruheFarbe: ruheFarbe.farbe,   // aus data.js
   ruheBreiteAnteil: 0.17,   // Säulenbreite relativ zur Tagesspalte
   mitternachtFarbe: "#E3B21F"
 };
@@ -314,12 +314,16 @@ function nachInnen(n, zuX, zuY) {
 
 // Kurze Textbeschreibung für Screenreader – in Worten, ohne Zahlen
 function beschreibung() {
-  const namen = symptome.map(s => s.name).join(" und ");
+  const liste = symptome.map(s => s.name);
+  const namen = liste.length > 1
+    ? `${liste.slice(0, -1).join(", ")} und ${liste[liste.length - 1]}`
+    : liste.join("");
+  const tagName = { Mo: "Montag", Di: "Dienstag", Mi: "Mittwoch", Do: "Donnerstag", Fr: "Freitag", Sa: "Samstag", So: "Sonntag" };
   const luecken = [];
   for (const s of symptome) {
     beispielwoche.forEach(t => {
       if (t.symptome[s.id] === null || t.symptome[s.id] === undefined) {
-        luecken.push(`${s.name} am ${t.tag}`);
+        luecken.push(`${s.name} am ${tagName[t.tag] || t.tag}`);
       }
     });
   }
