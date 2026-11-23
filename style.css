@@ -56,6 +56,16 @@ h1 {
   height: auto;
 }
 
+.tage {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin: 4px 0 0;
+  list-style: none;
+  color: var(--text-leise);
+  font-size: 1rem;
+  text-align: center;
+}
+
 .legende {
   display: flex;
   flex-wrap: wrap;
@@ -72,9 +82,30 @@ h1 {
 }
 
 .legende-farbe {
-  width: 24px;
-  height: 8px;
-  border-radius: 4px;
+  flex: none;
+  border-radius: 8px;
+}
+
+.legende-band {
+  width: 32px;
+  height: 16px;
+}
+
+.legende-saeule {
+  width: 12px;
+  height: 24px;
+  margin: 0 10px;
+  border-radius: 6px;
+}
+
+@media (max-width: 599px) {
+  h1 {
+    font-size: 1.5rem;
+  }
+
+  .bild {
+    margin-top: 12px;
+  }
 }
 
 :focus-visible {

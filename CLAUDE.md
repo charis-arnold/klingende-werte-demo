@@ -79,6 +79,33 @@ const beispielwoche = [
 
 Die Werte sind **fiktiv** und zeigen eine glaubwürdige, nicht dramatische Woche: Auf und Ab, ein ruhiger Tag, eine Lücke.
 
+## Raster (aus dem Selbstexperiment)
+
+Auf derselben Fläche liegen zwei Koordinatensysteme übereinander:
+
+**X-Achse – Tage:** eine Spalte pro Tag, gleichmässig verteilt.
+
+**Primäre Y-Achse – Stärke der Symptome:** 6 Stufen (wie die 6 Segmente der Figma-Säule), von unten nach oben. Jede Stufe ist ein gleich hohes Band; der Symptom-Punkt eines Tages sitzt in der Mitte seines Bandes. Stufengrenzen als kräftigere Punktlinien, dazwischen feine Punktlinien.
+
+**Sekundäre Y-Achse – Uhrzeit, für die Ruhezeiten:** Mitternacht liegt in der **Mitte** der Fläche.
+- Obere Hälfte: Vormittag. Von Mitternacht (Mitte) nach oben bis Mittag (oberer Rand).
+- Untere Hälfte: Nachmittag und Abend. Von Mittag (unterer Rand) nach oben bis Mitternacht (Mitte).
+- So läuft die Zeit in beiden Hälften von unten nach oben, und der Nachtschlaf ist eine zusammenhängende Säule, die die Mittellinie kreuzt. Ein Mittagsschlaf erscheint als kurze Säule nahe am unteren Rand.
+
+```js
+// h = Stunde 0–24, oben/unten/mitte = Pixel-Koordinaten der Zeichenfläche
+function yUhrzeit(h) {
+  const halb = (unten - oben) / 2;
+  if (h <= 12) return mitte - (h / 12) * halb;        // 0 → Mitte, 12 → oben
+  return unten - ((h - 12) / 12) * halb;              // 12 → unten, 24 → Mitte
+}
+// Ruhezeit [22, 6]: Säule von yUhrzeit(22) bis yUhrzeit(6), durchgehend über die Mitte
+```
+
+Eine feine gelbe Mittellinie markiert Mitternacht.
+
+**Beschriftung:** Die Zahlen der Stufen (1–6) und der Uhrzeit (0–24) sind **Konstruktionshilfe und werden nicht angezeigt** – keine Zahlen für Gefühltes. Sichtbar bleiben nur das Punktraster und die Wochentage.
+
 ## Zuordnung Bild und Klang
 
 Zeitachse: **1 Tag = 1 Takt** (Startwert ca. 2 Sekunden), Woche ≈ 15 Sekunden.
@@ -93,9 +120,9 @@ Zeitachse: **1 Tag = 1 Takt** (Startwert ca. 2 Sekunden), Woche ≈ 15 Sekunden.
 | Beschwerden | Piktogramm-Form aus Figma (Welle, Doppellinie, Strichlinie …) am Tag | – |
 | Ereignisse | Zeichen aus Figma (Kreuz, Welle, Strahlen) am Tag | – |
 | Medikamente | Formen aus Figma (Pille, Tropfen, Strich, Punkte) am Tag | – |
-| Ruhezeiten | Fläche bzw. Band unter dem Tag | – |
+| Ruhezeiten (Erholungsphasen) | senkrechte gelbe Säulen mit runden Enden, positioniert nach Uhrzeit auf der sekundären Y-Achse (siehe «Raster») | – |
 
-Gestaltung: Bildsprache des Figma-Prototyps und des Films aus dem Selbstexperiment (https://vimeo.com/1117098859) – dicke Linien mit runden Enden, Kreise, Überlagerungen mit `blendMode(MULTIPLY)`, viel Weissraum, Punktraster im Hintergrund. Symptome als grosse Linien in der Mitte, Beschwerden / Ereignisse / Medikamente als kleinere Zeichen in eigenen Zeilen oben und unten (wie im Film).
+Gestaltung: Bildsprache des Figma-Prototyps und des Films aus dem Selbstexperiment (https://vimeo.com/1117098859) – dicke Linien mit runden Enden, Kreise, Überlagerungen mit `blendMode(MULTIPLY)`, viel Weissraum, Punktraster im Hintergrund. Symptome als **breite Linien (Bänder) von Tag zu Tag**, die die ganze Höhe nutzen und sich überlagern – nicht wie ein dünnes Liniendiagramm. Ruhezeiten als senkrechte gelbe Säulen dahinter. Beschwerden / Ereignisse / Medikamente als kleinere Zeichen in eigenen Zeilen oben und unten (wie im Film). Eine einzige Schrift für alle Beschriftungen.
 
 **Musik-Einstellungen für Testpersonen:** In Phase 1 wählt die Person pro Symptom nur **Farbe und Instrument**. Tonart, Tonleiter, Umfang und Startoktave sind sinnvoll vorgegeben und nur in einem eingeklappten Bereich «Mehr Klang-Einstellungen» erreichbar. Begriffe auf Deutsch wie im Figma: Tonleiter (Dur, Moll, Melodisch Moll, Harmonisch Moll, Dorisch, Phrygisch, Lydisch, Mixolydisch, Lokrisch), Umfang («2 Oktaven»), Startoktave.
 
