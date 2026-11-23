@@ -92,10 +92,10 @@ h1 {
 }
 
 .legende-saeule {
-  width: 12px;
+  width: 6px;
   height: 24px;
-  margin: 0 10px;
-  border-radius: 6px;
+  margin: 0 13px;
+  border-radius: 3px;
 }
 
 @media (max-width: 599px) {

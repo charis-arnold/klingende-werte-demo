@@ -22,12 +22,12 @@ const BILD = {
   punktAbstand: 8,
 
   bandAnteil: 0.72,         // Banddicke relativ zur Stufenhöhe
-  kreisAnteil: 1.0,         // Kreis relativ zur Stufenhöhe
-  kreisMaxSpalte: 0.95,     // … aber nicht breiter als die Tagesspalte
-  bandMaxKreis: 0.72,       // Band nie dicker als dieser Anteil des Kreises
+  bandMaxSpalte: 0.68,      // … aber nie dicker als dieser Anteil der Tagesspalte
+  plateauAnteil: 0.45,      // waagrechtes Stück pro Tag, relativ zur Tagesspalte
+  kopfKreisAnteil: 1.0,     // Kreis am Abspielkopf (Schritt 3), relativ zur Stufenhöhe
 
   ruheFarbe: "#F4C542",
-  ruheBreiteAnteil: 0.34,   // Säulenbreite relativ zur Tagesspalte
+  ruheBreiteAnteil: 0.17,   // Säulenbreite relativ zur Tagesspalte
   mitternachtFarbe: "#E3B21F"
 };
 
@@ -99,12 +99,12 @@ function flaeche() {
   const unten = height - BILD.innenRand;
   const spalte = (rechts - links) / beispielwoche.length;
   const stufe = (unten - oben) / STUFEN;
-  const kreis = Math.min(stufe * BILD.kreisAnteil, spalte * BILD.kreisMaxSpalte);
   return {
     links, rechts, oben, unten,
     mitte: (oben + unten) / 2,
-    spalte, stufe, kreis,
-    dicke: Math.min(stufe * BILD.bandAnteil, kreis * BILD.bandMaxKreis)
+    spalte, stufe,
+    dicke: Math.min(stufe * BILD.bandAnteil, spalte * BILD.bandMaxSpalte),
+    kopfKreis: stufe * BILD.kopfKreisAnteil   // erst ab Schritt 3 gezeichnet
   };
 }
 
@@ -155,7 +155,7 @@ function mitternachtslinie(f) {
 function ruhezeitenZeichnen(f) {
   stroke(BILD.ruheFarbe);
   strokeCap(ROUND);
-  strokeWeight(Math.max(8, f.spalte * BILD.ruheBreiteAnteil));
+  strokeWeight(Math.max(5, f.spalte * BILD.ruheBreiteAnteil));
   beispielwoche.forEach((t, i) => {
     if (!t.ruhe) return;
     const x = tagX(i, f);
@@ -189,31 +189,125 @@ function symptomEbene() {
   return ebenenSpeicher;
 }
 
-// Symptom: breites Band von Tag zu Tag, Kreis pro eingetragenem Tag
+// Symptom: glattes, breites Band. Pro Tag ein waagrechtes Stück auf der Stufe,
+// dazwischen ein schräger Wechsel zum nächsten Tag. Kein Kreis pro Tag –
+// ein Kreis erscheint später nur am Abspielkopf.
 function symptomZeichnen(g, s, f) {
-  const c = color(s.farbe);
-  const punkte = beispielwoche.map((t, i) => {
+  const halb = (f.spalte * BILD.plateauAnteil) / 2;
+
+  // Zusammenhängende Abschnitte eingetragener Tage; fehlender Wert = Lücke
+  const abschnitte = [];
+  let aktuell = [];
+  beispielwoche.forEach((t, i) => {
     const w = t.symptome[s.id];
-    if (w === null || w === undefined) return null;
-    return { x: tagX(i, f), y: yStufe(stufeVonWert(w), f) };
+    if (w === null || w === undefined) {
+      if (aktuell.length) abschnitte.push(aktuell);
+      aktuell = [];
+      return;
+    }
+    const x = tagX(i, f);
+    const y = yStufe(stufeVonWert(w), f);
+    aktuell.push([x - halb, y], [x + halb, y]);
   });
+  if (aktuell.length) abschnitte.push(aktuell);
 
-  // Band nur zwischen zwei benachbarten eingetragenen Tagen, sonst Lücke
-  g.stroke(c);
-  g.strokeWeight(f.dicke);
-  g.strokeCap(ROUND);
-  g.noFill();
-  for (let i = 0; i < punkte.length - 1; i++) {
-    const a = punkte[i];
-    const b = punkte[i + 1];
-    if (a && b) g.line(a.x, a.y, b.x, b.y);
+  // Einzelne Stücke mit runden Enden statt eines Pfads: Bei steilen Wechseln
+  // erzeugt der Canvas-Pfad sonst innen eine weisse Kerbe. Da jedes Symptom
+  // auf eigener Ebene in einer Deckfarbe liegt, bleiben die Überlappungen unsichtbar.
+  for (const punkte of abschnitte) {
+    g.push();
+    g.stroke(s.farbe);
+    g.strokeWeight(f.dicke);
+    g.strokeCap(ROUND);
+    g.noFill();
+    for (let i = 0; i < punkte.length - 1; i++) {
+      const [x1, y1] = punkte[i];
+      const [x2, y2] = punkte[i + 1];
+      g.line(x1, y1, x2, y2);
+    }
+    g.pop();
+    g.push();
+    innenwinkelSchliessen(g, punkte, f.dicke, s.farbe);
+    g.pop();
   }
+}
 
-  g.noStroke();
-  g.fill(c);
-  for (const p of punkte) {
-    if (p) g.circle(p.x, p.y, f.kreis);
+// Bei Tal oder Gipfel (beide Nachbartage auf derselben Seite) ist das waagrechte
+// Stück kürzer als das Band breit – die Innenkanten der beiden Schrägen treffen sich
+// erst oberhalb davon, dazwischen bliebe eine weisse Kerbe. Diese Fläche füllen:
+// zwischen den Mittellinien bis zum Treffpunkt M der Innenkanten.
+function innenwinkelSchliessen(g, punkte, dicke, farbe) {
+  const r = dicke / 2;
+  g.fill(farbe);
+  g.stroke(farbe);          // dünne Kontur gleicher Farbe gegen Kantenglättungs-Haarlinien
+  g.strokeWeight(1.5);
+  g.strokeJoin(ROUND);
+  // punkte = [L0, R0, L1, R1, …] – je Tag Anfang und Ende des waagrechten Stücks
+  for (let i = 2; i + 2 < punkte.length; i += 2) {
+    const P = punkte[i - 1], A = punkte[i], B = punkte[i + 1], N = punkte[i + 2];
+    const seiteP = Math.sign(P[1] - A[1]);
+    const seiteN = Math.sign(N[1] - B[1]);
+    if (seiteP === 0 || seiteP !== seiteN) continue;
+
+    const u1 = einheit(P[0] - A[0], P[1] - A[1]);
+    const u2 = einheit(N[0] - B[0], N[1] - B[1]);
+    const n1 = nachInnen([-u1[1], u1[0]], B[0] - A[0], B[1] - A[1]);
+    const n2 = nachInnen([-u2[1], u2[0]], A[0] - B[0], A[1] - B[1]);
+
+    // Innenkanten: A + r·n1 + t·u1  und  B + r·n2 + s·u2
+    const a = [A[0] + r * n1[0], A[1] + r * n1[1]];
+    const b = [B[0] + r * n2[0], B[1] + r * n2[1]];
+    const nenner = u1[0] * u2[1] - u1[1] * u2[0];
+    if (Math.abs(nenner) < 1e-9) continue;
+    const t = ((b[0] - a[0]) * u2[1] - (b[1] - a[1]) * u2[0]) / nenner;
+    const sP = ((b[0] - a[0]) * u1[1] - (b[1] - a[1]) * u1[0]) / nenner;
+    const laenge1 = Math.hypot(P[0] - A[0], P[1] - A[1]);
+    const laenge2 = Math.hypot(N[0] - B[0], N[1] - B[1]);
+
+    if (t <= 0 || sP <= 0) {
+      // Die Innenkanten treffen sich erst unterhalb der Kante des waagrechten
+      // Stücks: Die Öffnung hätte dort einen flachen Boden (Schlitz).
+      // Stattdessen läuft sie spitz auf die Mitte dieser Kante zu.
+      spitzerBoden(g, a, u1, b, u2, A[1] + seiteP * r, seiteP * r, laenge1, laenge2);
+      continue;
+    }
+    if (t > laenge1 || sP > laenge2) continue;
+
+    const M = [a[0] + t * u1[0], a[1] + t * u1[1]];
+    g.beginShape();
+    g.vertex(A[0], A[1]);
+    g.vertex(B[0], B[1]);
+    g.vertex(B[0] + sP * u2[0], B[1] + sP * u2[1]);
+    g.vertex(M[0], M[1]);
+    g.vertex(A[0] + t * u1[0], A[1] + t * u1[1]);
+    g.endShape(CLOSE);
   }
+}
+
+// a/u1, b/u2: Innenkanten der beiden Schrägen; yKante: Innenkante des waagrechten
+// Stücks; schritt: Höhe (mit Richtung), über die die Öffnung spitz zuläuft
+function spitzerBoden(g, a, u1, b, u2, yKante, schritt, laenge1, laenge2) {
+  const aufKante1 = y => (y - a[1]) / u1[1];
+  const aufKante2 = y => (y - b[1]) / u2[1];
+  const t0 = aufKante1(yKante), t1 = aufKante1(yKante + schritt);
+  const s0 = aufKante2(yKante), s1 = aufKante2(yKante + schritt);
+  if (t1 > laenge1 || s1 > laenge2) return;
+  const X1 = [a[0] + t0 * u1[0], yKante];
+  const L  = [a[0] + t1 * u1[0], yKante + schritt];
+  const X2 = [b[0] + s0 * u2[0], yKante];
+  const R  = [b[0] + s1 * u2[0], yKante + schritt];
+  const Q  = [(X1[0] + X2[0]) / 2, yKante];
+  g.triangle(X1[0], X1[1], L[0], L[1], Q[0], Q[1]);
+  g.triangle(X2[0], X2[1], R[0], R[1], Q[0], Q[1]);
+}
+
+function einheit(x, y) {
+  const l = Math.hypot(x, y);
+  return [x / l, y / l];
+}
+
+function nachInnen(n, zuX, zuY) {
+  return (n[0] * zuX + n[1] * zuY) >= 0 ? n : [-n[0], -n[1]];
 }
 
 // ---------- Text rund ums Bild (HTML, eine Schrift) ----------
